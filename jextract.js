@@ -44,6 +44,4 @@ jExtract = function(struct){
     });
     return struct;
   }
-//try running this on http://plugins.jquery.com/tag/input/ and you'll see what my function can do!
 
-jExtract({ plugins: ['.hentry', { title: 'h2.entry-title', description: '.eight.coulmns p'}]});
