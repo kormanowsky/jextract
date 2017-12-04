@@ -9,7 +9,7 @@
     age: "#user-age"
   }); // data = {name: "John", age: "27"}
 */
-jExtract = function(struct){
+function jExtract(struct){
   struct = struct || {};
   $.each(struct, function(i, e){
     var r; switch(typeof e){
