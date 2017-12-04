@@ -1,4 +1,4 @@
-# jextract
+# jExtract
 Allow extracting data from DOM using jQuery
 ## Example:
 DOM:
