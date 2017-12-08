@@ -52,9 +52,11 @@ function jExtract(struct, parent) {
         },
         jExtractElement = function (element) {
             this._jquery = element;
-        }, 
+        },
         result = {};
-    jExtractText.prototype.get = function () {
+    jExtractText.prototype.get = function (trim) {
+        trim = trim || true;
+        if (trim) return this._text.trim();
         return this._text;
     };
     jExtractText.prototype.match = function (regexp, index) {
@@ -84,7 +86,7 @@ function jExtract(struct, parent) {
         });
         return val;
     };
-    
+
     //Start our loop
     $.each(struct, function (i, e) {
         //Recursion :)
@@ -104,10 +106,14 @@ function jExtract(struct, parent) {
         } else {
             element = find(e[0]);
             if (!isUndefined(e[1])) {
-                if (isArray(e[1])) {
-                    data = methodAndArgs(e[1]);
+                if (!isObject(e[1])) {
+                    if (!isEmptyArray(e[1])) {
+                        data = methodAndArgs(e[1]);
+                    }
                     if (!isUndefined(e[2])) {
-                        filter = methodAndArgs(e[2]);
+                        if (!isEmptyArray(e[2])) {
+                            filter = methodAndArgs(e[2]);
+                        }
                         if (!isUndefined(e[3])) {
                             asArray = !!e[3];
                         }
