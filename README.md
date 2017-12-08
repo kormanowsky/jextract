@@ -19,7 +19,7 @@ var structure = {
     content: "#page-content"
 };
 ```
-2. Just pass you structure as a parameter to jExtract function: 
+2. Just pass your structure as a parameter to jExtract function: 
 ```javascript
 var data = jExtract(structure);
 ```
