@@ -1,17 +1,33 @@
 # jExtract
 Allow extracting data from DOM using jQuery
-## Example:
-DOM:
+## Basic usage
+0. Create a HTML document and include jQuery and jExtract (jExtract should be included AFTER jQuery as it depends on this library)
 ```html
-    <span id="user-name">John</span>
-    <span id="user-age">27</span>
+<h1 id="page-title">Hello, world!</h1>
+<p id="page-content">Lorem ipsum dolor sit amet.</p>
+<!-- Your code continues here -->
+<script src="/path/to/jquery.js"></script>
+<script src="/path/to/jextract.js"></script>
+<script>
+    //Your JavaScript goes here
+</script>
 ```
-JS:
+1. Create a data structure containing CSS selectors of elements from which you need to extract data: 
 ```javascript
-   var data = jExtract({
-    name: "#user-name",
-    age: "#user-age"
-  }); 
-// data = {name: "John", age: "27"}
+var structure = {
+    title: "#page-title", 
+    content: "#page-content"
+};
 ```
-
+2. Just pass you structure as a parameter to jExtract function: 
+```javascript
+var data = jExtract(structure);
+```
+`data` will be:
+```javascript 
+{
+    title: "Hello, world!",
+    content: "Lorem ipsum dolor sit amet."
+}
+```
+3. Now you can do anything you want with extracted data. 
