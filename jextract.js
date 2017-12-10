@@ -141,7 +141,7 @@ function jExtract(struct, parent) {
                     context;
                 if(isFunction(data[0])){
                   method = data[0];
-                  args = [jElement._jquery];
+                  args = [jElement._jquery, element].concat(data[1]);
                   context = null;
                 }else if(isString(data[0])){
                   method = jElement.recget(data[0]);
@@ -156,7 +156,7 @@ function jExtract(struct, parent) {
                 if(!(jElementProp instanceof jExtractText)) jElementProp = new jExtractText(jElementProp + '');
                 if(isFunction(filter[0])){
                   method = filter[0];
-                  args = [jElementProp];
+                  args = [jElementProp].concat(filter[1]);
                   content = null;
                 }else if(isString(filter[0])){
                   method = jElementProp[filter[0]];
