@@ -5,7 +5,7 @@ Allow extracting data from DOM using jQuery
 ```html
 <h1 id="page-title">Hello, world!</h1>
 <p id="page-content">Lorem ipsum dolor sit amet.</p>
-<!-- Your code continues here -->
+<!-- Your HTML continues here -->
 <script src="/path/to/jquery.js"></script>
 <script src="/path/to/jextract.js"></script>
 <script>
