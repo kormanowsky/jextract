@@ -1,8 +1,8 @@
-/** 
-    jExtract: a small function for extracting data from DOM. 
-    Version: 0.0.2
+/**
+    jExtract: a small function for extracting data from DOM.
+    Version: 0.0.3
     Author: Mikhail Kormanowsky (@kormanowsky)
-    Date: 08.12.2017
+    Date: 10.12.2017
 */
 function jExtract(struct, parent) {
     //Throw an error about jQuery
@@ -47,6 +47,9 @@ function jExtract(struct, parent) {
         isEmptyArray = function (v) {
             return isArray(v) && !v.length;
         },
+        isFunction = function(v){
+          return typeof v === "function";
+        }
         jExtractText = function (string) {
             this._text = string;
         },
@@ -66,11 +69,16 @@ function jExtract(struct, parent) {
         }
         return matches;
     };
-    jExtractText.prototype.toInt = function () {
-        return parseInt(this.get());
+    jExtractText.prototype.toInt = function (leaveNaN) {
+        leaveNaN = leaveNaN || false;
+        if(!isNaN(parseInt(this.get())) || leaveNaN) return parseInt(this.get());
+        return 0;
     };
-    jExtractText.prototype.toFloat = function () {
-        return parseFloat(this.get());
+    jExtractText.prototype.toFloat = function (leaveNaN) {
+        leaveNaN = leaveNaN || false;
+        var str = this.get().replace(",", ".");
+        if(!isNaN(parseFloat(str)) || leaveNaN) return parseFloat(str);
+        return 0;
     };
     jExtractElement.prototype.text = function () {
         return new jExtractText(this._jquery.text());
@@ -105,30 +113,61 @@ function jExtract(struct, parent) {
             element = find(e);
         } else {
             element = find(e[0]);
-            if (!isUndefined(e[1])) {
-                if (!isObject(e[1])) {
-                    if (!isEmptyArray(e[1])) {
-                        data = methodAndArgs(e[1]);
-                    }
-                    if (!isUndefined(e[2])) {
-                        if (!isEmptyArray(e[2])) {
-                            filter = methodAndArgs(e[2]);
-                        }
-                        if (!isUndefined(e[3])) {
-                            asArray = !!e[3];
-                        }
-                    }
-                } else {
-                    s = e[1];
-                }
+            //User-deined functions support added
+            if(isObject(e[1])){
+              s = e[1];
+            }else if(isArray(e[1]) && !isEmptyArray(e[1])){
+              data = methodAndArgs(e[1]);
+            }else if(isFunction(e[1])){
+              data[0] = e[1];
+            }
+
+            if(isFunction(e[2])){
+              filter[0] = e[2];
+            }else if(isArray(e[2]) && !isEmptyArray(e[2])){
+              filter = methodAndArgs(e[2]);
+            }
+
+            if(!isUndefined(e[3])){
+              asArray = !!e[3];
             }
         }
         //Find elements that match selector and extract data from them
         element.each(function (a, b) {
             if (isUndefined(s)) {
                 var jElement = new jExtractElement($(b)),
-                    jElementProp = jElement.recget(data[0]).apply(jElement, data[1]);
-                _result.push(jElementProp[filter[0]].apply(jElementProp, filter[1]));
+                    method,
+                    args,
+                    context;
+                if(isFunction(data[0])){
+                  method = data[0];
+                  args = [jElement._jquery];
+                  context = null;
+                }else if(isString(data[0])){
+                  method = jElement.recget(data[0]);
+                  args = data[1];
+                  context = jElement;
+                }else{
+                  method = function(){};
+                  context = null;
+                  args = [];
+                }
+                var jElementProp = method.apply(context, args);
+                if(!(jElementProp instanceof jExtractText)) jElementProp = new jExtractText(jElementProp + '');
+                if(isFunction(filter[0])){
+                  method = filter[0];
+                  args = [jElementProp];
+                  content = null;
+                }else if(isString(filter[0])){
+                  method = jElementProp[filter[0]];
+                  args = filter[1];
+                  context = jElementProp;
+                }else{
+                  method = function(){};
+                  context = null;
+                  args = [];
+                }
+                _result.push(method.apply(context, args));
             } else {
                 //Or just make a recursion if needed
                 _result.push(jExtract(s, $(b)));
