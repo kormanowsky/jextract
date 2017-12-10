@@ -49,7 +49,7 @@ function jExtract(struct, parent) {
         },
         isFunction = function(v){
           return typeof v === "function";
-        }
+        },
         jExtractText = function (string) {
             this._text = string;
         },
