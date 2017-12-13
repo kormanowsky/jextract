@@ -128,7 +128,7 @@ function jExtract(struct, parent) {
                     context;
                 if(isFunction(data[0])){
                   method = data[0];
-                  args = [element, a].concat(data[1]);
+                  args = [jElement, a, element].concat(data[1]);
                   context = null;
                 }else if(isString(data[0])){
                   method = jElement[data[0]];
