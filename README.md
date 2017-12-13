@@ -131,7 +131,7 @@ Think of the following HTML:
   <div class="uid">5</div>
   <div class="uemail">user5example.com</div>
 </div>
-```.
+```
 You can create an array of all users with each element filled with each user data. In your key pass two parameters: selector and a structure that you want to be applied to this selector.
 ```javascript
 jExtract({
