@@ -101,7 +101,7 @@ key: [selector, dataGettingMethod, filterMethod, true]
 ### Parent elements
 By default, jExtract searches for elements in `<html>` tag. You can pass a jQuery object as the second parameter to jExtract to change this:
 ```javascript
-var data = jExtract(structure, $("#someElement");
+var data = jExtract(structure, $("#someElement"));
 ```
 Also you can create a substructure that will be applied to each matched element. 
 Think of the following HTML: 
