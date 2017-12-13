@@ -1,8 +1,8 @@
 /**
     jExtract: a small function for extracting data from DOM.
-    Version: 0.0.3
+    Version: 0.0.4
     Author: Mikhail Kormanowsky (@kormanowsky)
-    Date: 10.12.2017
+    Date: 13.12.2017
 */
 function jExtract(struct, parent) {
     //Throw an error about jQuery
@@ -15,6 +15,7 @@ function jExtract(struct, parent) {
     parent = parent || $("html");
     //Some functions and objects
     var find = function (selector) {
+      if(selector == '.') return parent;
             return parent.find(selector);
         },
         methodAndArgs = function (input) {
@@ -50,11 +51,11 @@ function jExtract(struct, parent) {
         isFunction = function(v){
           return typeof v === "function";
         },
+        isNull = function(v){
+          return v === null;
+        },
         jExtractText = function (string) {
             this._text = string;
-        },
-        jExtractElement = function (element) {
-            this._jquery = element;
         },
         result = {};
     jExtractText.prototype.get = function (trim) {
@@ -79,20 +80,6 @@ function jExtract(struct, parent) {
         var str = this.get().replace(",", ".");
         if(!isNaN(parseFloat(str)) || leaveNaN) return parseFloat(str);
         return 0;
-    };
-    jExtractElement.prototype.text = function () {
-        return new jExtractText(this._jquery.text());
-    };
-    jExtractElement.prototype.attr = function (attrName) {
-        return new jExtractText(this._jquery.attr(attrName));
-    };
-    jExtractElement.prototype.recget = function (key) {
-        var val = this;
-        key = key.split('.');
-        key.forEach(function (k) {
-            if (k in val) val = val[k];
-        });
-        return val;
     };
 
     //Start our loop
@@ -135,16 +122,16 @@ function jExtract(struct, parent) {
         //Find elements that match selector and extract data from them
         element.each(function (a, b) {
             if (isUndefined(s)) {
-                var jElement = new jExtractElement($(b)),
+                var jElement = $(b),
                     method,
                     args,
                     context;
                 if(isFunction(data[0])){
                   method = data[0];
-                  args = [jElement._jquery, element].concat(data[1]);
+                  args = [element, a].concat(data[1]);
                   context = null;
                 }else if(isString(data[0])){
-                  method = jElement.recget(data[0]);
+                  method = jElement[data[0]];
                   args = data[1];
                   context = jElement;
                 }else{
@@ -152,22 +139,26 @@ function jExtract(struct, parent) {
                   context = null;
                   args = [];
                 }
-                var jElementProp = method.apply(context, args);
-                if(!(jElementProp instanceof jExtractText)) jElementProp = new jExtractText(jElementProp + '');
-                if(isFunction(filter[0])){
-                  method = filter[0];
-                  args = [jElementProp].concat(filter[1]);
-                  content = null;
-                }else if(isString(filter[0])){
-                  method = jElementProp[filter[0]];
-                  args = filter[1];
-                  context = jElementProp;
-                }else{
-                  method = function(){};
-                  context = null;
-                  args = [];
-                }
-                _result.push(method.apply(context, args));
+                var jElementProp = method.apply(context, args), toPush;
+                if(isNull(jElementProp) || isUndefined(jElementProp)) return;
+                else if(isObject(jElementProp) || isArray(jElementProp) || isString(jElementProp)){
+                  if(!(jElementProp instanceof jExtractText)) jElementProp = new jExtractText(jElementProp + '');
+                  if(isFunction(filter[0])){
+                    method = filter[0];
+                    args = [jElementProp, a].concat(filter[1]);
+                    content = null;
+                  }else if(isString(filter[0])){
+                    method = jElementProp[filter[0]];
+                    args = filter[1];
+                    context = jElementProp;
+                  }else{
+                    method = function(){};
+                    context = null;
+                    args = [];
+                  }
+                  toPush = method.apply(context, args);
+                }else toPush = jElementProp;
+                _result.push(toPush);
             } else {
                 //Or just make a recursion if needed
                 _result.push(jExtract(s, $(b)));
