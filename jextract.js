@@ -1,8 +1,8 @@
 /**
     jExtract: a small function for extracting data from DOM.
-    Version: 0.0.4
+    Version: 0.0.5
     Author: Mikhail Kormanowsky (@kormanowsky)
-    Date: 13.12.2017
+    Date: 05.01.2018
 */
 function jExtract(struct, parent) {
     //Throw an error about jQuery
