@@ -1,5 +1,8 @@
 # jExtract
 Allow extracting data from DOM using jQuery
+- Current version: 0.0.5 (released 05.01.2018)
+### Live Demo: https://jsfiddle.net/9Luw0vsc/
+
 ## Basic usage
 0. Create a HTML document and include jQuery and jExtract (jExtract should be included AFTER jQuery as it depends on this library)
 ```html
