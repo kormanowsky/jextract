@@ -1,6 +1,8 @@
 # jExtract
-Allow extracting data from DOM using jQuery
 - Current version: 0.0.5 (released 05.01.2018)
+## What is this function for?
+It makes possible extracting data from DOM using jQuery
+
 ### Live Demo: https://jsfiddle.net/ww6c6fgs/
 
 ## Basic usage
