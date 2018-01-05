@@ -81,7 +81,10 @@ function jExtract(struct, parent) {
         if(!isNaN(parseFloat(str)) || leaveNaN) return parseFloat(str);
         return 0;
     };
-
+    //Since v0.0.5: allow extracting from string
+    if(isString(parent)){
+      return jExtract(struct, $('<div>' + parent + '</div>'));
+    }else
     //Start our loop
     $.each(struct, function (i, e) {
         //Recursion :)
@@ -174,3 +177,12 @@ function jExtract(struct, parent) {
     //Return structure filled in with data
     return result;
 }
+
+/** Since v0.0.5: allow extracting from element using jQuery */
+
+jQuery.fn.jExtract = function(struct){
+  return jExtract(struct, $(this));
+}
+
+/** Since v0.0.5: a short name for jExtract: $E */
+$E = jExtract;
