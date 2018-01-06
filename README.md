@@ -46,6 +46,15 @@ var data = jExtract(structure);
 ```
 3. Now you can do anything you want with extracted data. 
 ## Extended usage
+### JSON
+#### Since v0.0.6
+You can pass structure as JSON and request a JSON-stringified answer.
+```javascript
+var data = jExtract("JSON here"); 
+```
+```javascript
+var data = jExtract({ div: 'div'}, false, true); // will return JSON string with results
+```
 ### Substructures
 You can add substructures into your main structure. 
 ```javascript
