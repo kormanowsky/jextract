@@ -3,7 +3,7 @@
 ## What is this function for?
 It makes possible extracting data from DOM using jQuery.
 May be useful when you are working with data from websites that don't have any data APIs. In that case you can use this function to read data directly from DOM (or HTML string).
-### Live Demo: https://jsfiddle.net/ww6c6fgs/
+### Live Demo: https://jsfiddle.net/o4tnj247/
 ### Changes since v0.0.6
 jExtract does not depend on jQuery, but pure-JavaScript version supports only getting text and attributes from element. 
 If you need more, include jQuery, or post an issue for me to know what functionality is needed.
