@@ -1,11 +1,9 @@
 /**
-    jExtract: a small function for extracting data from DOM.
-    Version: 0.0.6
+    jExtract: a function for extracting data from DOM.
+    Version: 0.0.7
     Author: Mikhail Kormanowsky (@kormanowsky)
-    Date: 07.01.2018
+    Date: 08.01.2018
 */
-//Since v0.0.6: all code is wrapped by anonymous function
-//Since v0.0.6: jExtract can now work without jQuery. If there's jQuery in window, jExtract will use jQuery. If not, jExtract will use its own methods
 (function () {
     //Type checkers
     var isUndefined = function (v) {
@@ -18,9 +16,12 @@
             return typeof v === "object" && v instanceof Array;
         },
         isjQuery = function (v) {
-            return jQueryLoaded && v instanceof $;
+            return $ && v instanceof $;
         },
-        isNodeList = function(v){
+        isjExtractElement = function (v){
+            return v instanceof Element;  
+        },
+        isNodeList = function (v) {
             return v instanceof NodeList;
         },
         isString = function (v) {
@@ -28,6 +29,33 @@
         },
         isEmptyString = function (v) {
             return isString(v) && !v.length;
+        },
+        isCSSSelector = function (v) {
+            if (!isString(v) || isEmptyString(v)) return false;
+            v = document.querySelector(v);
+            if (v === null) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        isJSON = function (v) {
+            if (!isString(v) || isEmptyString(v)) return false;
+            try {
+                v = JSON.parse(v);
+            } catch (e) {
+                return false;
+            }
+            return true;
+        },
+        isHTML = function (v) {
+            if (!isString(v) || isEmptyString(v)) return false;
+            v = v.trim();
+            if (v[0] == "<" && v[v.length - 1] == ">") {
+                return true;
+            } else {
+                return false;
+            }
         },
         isEmptyArray = function (v) {
             return isArray(v) && !v.length;
@@ -71,31 +99,39 @@
             this.attr = function (attr) {
                 return element.getAttribute(attr);
             }
-            this.element = element;
-        },
-        //Object creator and finder
-        jQueryLoaded = isFunction(window.jQuery),
-        $ = jQueryLoaded ? window.jQuery : false,
-        find = function (parent, selector) {
-            if (jQueryLoaded) {
-                if (selector === ".")
-                    return parent;
-                return parent.find(selector);
-            } else {
-                if (selector === ".")
-                    return [parent];
-                var children = parent.querySelectorAll(selector);
-                if (children instanceof NodeList) return children;
-                else return [children];
+            this.get = function () {
+                return element;
             }
         },
-        methodArgs = function (input) {
-            var method, args;
-            if (isString(input)) method = input;
-            else if (!isEmptyArray(input)) {
-                method = input[0];
-                if (input.length > 1) {
-                    args = input.slice(1);
+        //Object creator and finder
+        $ = isFunction(window.jQuery) ? window.jQuery : false,
+        find = function (parent, selector) {
+            if (selector == ".") {
+                return [parent];
+            } else {
+                if (!isCSSSelector(selector)) {
+                    console.error('jExtract error: couldn`t find elements that match selector "' + selector + '".');
+                    return false;
+                }
+                var children = parent.get().querySelectorAll(selector),
+                    resultChildren = [];
+                children = isNodeList(children) ? children : [children];
+                each(children, function (e, i, a) {
+                    resultChildren[i] = new Element(e);
+                });
+                return resultChildren;
+            }
+        },
+        methodArgs = function (input, defs) {
+            var method = defs[0],
+                args = defs[1];
+            if (!isUndefined(input)) {
+                if (isString(input) || isFunction(input)) method = input;
+                else if (isArray(input) && !isEmptyArray(input)) {
+                    method = input[0];
+                    if (input.length > 1) {
+                        args = input.slice(1);
+                    }
                 }
             }
             return [method, args];
@@ -104,10 +140,6 @@
         each = function (value, callback) {
             if (isArray(value) || isNodeList(value)) {
                 value.forEach(callback);
-            } else if (isjQuery(value)) {
-                value.each(function (i, e) {
-                    callback($(e), i, value);
-                });
             } else if (isObject(value)) {
                 for (var i in value) {
                     var e = value[i];
@@ -116,27 +148,13 @@
             }
         },
         stringToParent = function (string) {
-            if (isString(string)) {
-                if (jQueryLoaded) {
-                    return $('<div>' + string + '</div>');
-                } else {
-                    var elem = document.createElement('div');
-                    elem.innerHTML = string;
-                    return elem;
-                }
-            } else {
-                return string;
+            if (isCSSSelector(string)) {
+                return new Element(document.querySelector(string));
+            } else if (isHTML(string)) {
+                var elem = document.createElement('div');
+                elem.innerHTML = string;
+                return elem;
             }
-        },
-        itemToObject = function (item) {
-            if (jQueryLoaded) {
-                return isjQuery(item) ? item : $(item);
-            } else {
-                return new Element(item);
-            }
-        },
-        defaultParentElement = function () {
-            return jQueryLoaded ? $('html') : document;
         },
         //jExtract itself
         jExtract = function (struct, parent, asJSON) {
@@ -144,20 +162,20 @@
             var result = {};
             //Default values
             struct = struct || {};
-            parent = parent || defaultParentElement();
+            parent = parent || new Element(document);
             asJSON = asJSON || false;
-            //Since v0.0.6: allow JSON structures
-            if (isString(struct)) {
-                try {
+            if (!isObject(struct)) {
+                if (isJSON(struct)) {
                     struct = JSON.parse(struct);
-                } catch (e) {
-                    console.error('jExtract error: JSON error', e, struct);
+                } else {
+                    console.error('jExtract error: JSON error', struct);
                 }
             }
-            //Since v0.0.5: allow extracting from string
             if (isString(parent)) {
-                return jExtract(struct, stringToParent(string));
-            } else
+                return jExtract(struct, stringToParent(parent));
+            } else {
+                if(isjQuery(parent)) parent = parent[0];
+                if(!isjExtractElement(parent)) parent = new Element(parent);
                 //Start our loop
                 each(struct, function (e, i) {
                     //Recursion :)
@@ -170,77 +188,75 @@
                         filter = ['get', []],
                         asArray = false,
                         subresult = [],
-                        element,
+                        elements,
                         substruct;
                     if (isString(e)) {
-                        element = find(parent, e);
+                        elements = find(parent, e);
                     } else {
-                        element = find(parent, e[0]);
+                        elements = find(parent, e[0]);
                         //User-deined functions support added
                         if (isObject(e[1])) {
                             substruct = e[1];
-                        } else if (isArray(e[1]) && !isEmptyArray(e[1])) {
-                            data = methodArgs(e[1]);
-                        } else if (isFunction(e[1])) {
-                            data[0] = e[1];
+                        } else {
+                            data = methodArgs(e[1], data);
                         }
 
-                        if (isFunction(e[2])) {
-                            filter[0] = e[2];
-                        } else if (isArray(e[2]) && !isEmptyArray(e[2])) {
-                            filter = methodArgs(e[2]);
-                        }
+                        filter = methodArgs(e[2], filter);
 
                         if (!isUndefined(e[3])) {
                             asArray = !!e[3];
                         }
                     }
                     //Find elements that match selector and extract data from them
-                    each(element, function (item, index) {
+                    each(elements, function (item, index) {
                         if (isUndefined(substruct)) {
-                            var Elem = itemToObject(item),
-                                method,
-                                args,
-                                context;
+                            var method = function(){},
+                                args = [],
+                                context = null;
                             if (isFunction(data[0])) {
                                 method = data[0];
-                                args = [Elem, index, element].concat(data[1]);
-                                context = null;
+                                args = [item, index, elements].concat(data[1]);
                             } else if (isString(data[0])) {
-                                if(data[0] in Elem){
-                                    method = Elem[data[0]];
-                                    args = data[1];
-                                    context = Elem;
-                                }else{
-                                    console.error('jExtract error: undefined method "' + data[0] + '".');
+                                args = data[1];
+                                if (data[0] in item) {
+                                    method = item[data[0]];
+                                    context = item;
+                                } else if ($ && data[0] in $(item.get())) {
+                                    method = $(item.get())[data[0]];
+                                    context = $(item.get());
+                                } else {
+                                    console.error('jExtract error: undefined element method "' + data[0] + '".');
                                     return;
                                 }
-                            } else {
-                                method = function () {};
-                                context = null;
-                                args = [];
                             }
-                            var Info = method.apply(context, args),
-                                toPush;
-                            if (isNull(Info) || isUndefined(Info)) return;
-                            else if (isObject(Info) || isArray(Info) || isString(Info)) {
-                                if (!(Info instanceof Text)) Info = new Text(Info + '');
+                            var extractedData = method.apply(context, args),
+                                itemResult;
+                            if(isString(extractedData) && filter[0]){
+                                method = function(){};
+                                args = [];
+                                context = null;
+                                extractedData = new Text(extractedData);
                                 if (isFunction(filter[0])) {
                                     method = filter[0];
-                                    args = [Info, index].concat(filter[1]);
-                                    content = null;
+                                    args = [extractedData, index].concat(filter[1]);
                                 } else if (isString(filter[0])) {
-                                    method = Info[filter[0]];
                                     args = filter[1];
-                                    context = Info;
-                                } else {
-                                    method = function () {};
-                                    context = null;
-                                    args = [];
+                                    if(filter[0] in extractedData){
+                                        method = extractedData[filter[0]];
+                                        context = extractedData;
+                                    }else if(filter[0] in (new String(extractedData.get()))){
+                                        method = extractedData.get()[filter[0]];
+                                        context = extractedData.get();
+                                    }else{
+                                        console.error('jExtract error: undefined text method "' + filter[0] + '".');
+                                        return;
+                                    }
                                 }
-                                toPush = method.apply(context, args);
-                            } else toPush = Info;
-                            subresult.push(toPush);
+                                itemResult = method.apply(context, args);
+                            }else{
+                                itemResult = extractedData;
+                            }
+                            subresult.push(itemResult);
                         } else {
                             //Or just make a recursion if needed
                             subresult.push(jExtract(substruct, item));
@@ -253,15 +269,18 @@
                     //Add subresult to result object
                     result[i] = subresult;
                 });
+            }
             //Return structure filled in with data
-            //Since v0.0.6: JSON support added
             return asJSON ? JSON.stringify(result) : result;
         }
-
-    /** Since v0.0.5: a short name for jExtract: $E */
+    jExtract.addTextMethod = function (name, callback) {
+        Text.prototype[name] = callback;
+    };
+    jExtract.addElementMethod = function (name, callback) {
+        Element.prototype[name] = callback;
+    };
     window.$E = window.jExtract = jExtract;
-    /** Since v0.0.5: allow extracting from element using jQuery */
-    if (jQueryLoaded) {
+    if ($) {
         window.jQuery.fn.jExtract = function (struct) {
             return jExtract(struct, $(this));
         }

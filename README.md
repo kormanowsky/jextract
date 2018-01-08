@@ -1,20 +1,8 @@
 # jExtract
-- Current version: 0.0.6 (released 07.01.2018)
 ## What is this function for?
-It makes possible extracting data from DOM using jQuery.
+It makes possible extracting data from DOM. 
 May be useful when you are working with data from websites that don't have any data APIs. In that case you can use this function to read data directly from DOM (or HTML string).
-### Live Demo: https://jsfiddle.net/o4tnj247/
-### Changes since v0.0.6
-jExtract does not depend on jQuery, but pure-JavaScript version supports only getting text and attributes from element. 
-If you need more, include jQuery, or post an issue for me to know what functionality is needed.
-Actually, there are two modes of working: 
-1. With jQuery: 
-If you include jQuery before jExtract, it will work with jQuery and use jQuery methods. It will be possible to do something like this: 
-```javascript 
-var data = $("#element").jExtract(someStructure);
-```
-2. Without jQuery: 
-jExtract will use pure-JS methods to get data from HTML. 
+### Live Demo: https://jsfiddle.net/475d24ts/
 ## Basic usage
 0. Create a HTML document and include jExtract
 ```html
@@ -46,8 +34,7 @@ var data = jExtract(structure);
 ```
 3. Now you can do anything you want with extracted data. 
 ## Extended usage
-### JSON
-#### Since v0.0.6
+### JSON (since v0.0.6)
 You can pass structure as JSON and request a JSON-stringified answer.
 ```javascript
 var data = jExtract("JSON here"); 
@@ -72,7 +59,7 @@ By default, jExtract returns the text of matched element(s). But you can change 
 It's a function that returns data that is extracted from element. 
 Default: `text()`.
 Before v0.0.4, jExtract used its own element object that was based on jQuery. 
-Since v0.0.4, jExtract uses a plain jQuery object without any additions/deletions, so you can call any jQuery object methods while extracting data with jExtract.
+Since v0.0.4 until v0.0.6, jExtract used a plain jQuery object without any additions/deletions, so you were able to call any jQuery object methods while extracting data with jExtract.
 There are a few ways to pass data getting method to jExtract: 
 1. a string that is a jQuery object method (e. g.: `width`);
 2. an array in which first element is a jQuery object method, and others are parameters for this method (e.g.: `['attr', 'href']`);
@@ -86,8 +73,14 @@ var struct = {
     }]
 }
 ```
-##### Note: if dataGettingMethod returns `null` filterMethod will not be called. 
+
+Since v0.0.7, jExtract uses its own object again, but its behavior was changed. Here's what jExtract does while extracting data: 
+1. It looks for method in its own object.
+2. If method was not found, jExtract chacks if jQuery was loaded and then looks for method in jQuery object created from jExtract's own object.
+3. If nothing was found again, it calls `console.error()` and stops extracting data from this structure key.
+
 #### Filter method
+##### Note: filter method is called only if data getting method returns a string.
 It's a function that filters extracted data.
 Default: `jExtractText.get()`
 jExtractText is a class that exists only in jExtract function, so you can't access it outside of it. In this class I collect useful methods for working with strings. Currently supported: 
@@ -113,6 +106,12 @@ var struct = {
     }]
 }
 ```
+
+Since v0.0.7, jExtract's behavior with filter methods is the following: 
+1. It looks for method in its own jExtractText object.
+2. If nothing was found, it looks for method in a String object created from its own object.
+3. If nothing was found again, it calls `console.error()` and stops extracting data from this structure key.
+
 #### What to do with a single value?
 jExtract generates an array of values during its loop. If there is less than two elements in the resulting array, the result will contain only first element of this array.
 If you don't want to lose an array in the result, set the fourth parameter to true (default is false): 
@@ -122,6 +121,7 @@ key: [selector, dataGettingMethod, filterMethod, true]
 ...
 ```
 ### Parent elements
+
 By default, jExtract searches for elements in `<html>` tag. You can pass a jQuery object as the second parameter to jExtract to change this:
 ```javascript
 var data = jExtract(structure, $("#someElement"));
@@ -175,5 +175,37 @@ You will get an array:
     {name: "User 5", id: 5, email: "user5example.com"}
 ]
 ```
+
+Since v0.0.6, it's possible to pass a HTML string as parent element.
+
+Since v0.0.7, it's possible to pass a selector as parent element.
+
 ### Referring to current element
+
 In your values you can refer to current element using `"."` as a selector.
+
+### Extending jExtract (since v0.0.7)
+
+You can extend jExtract's Element and Text objects. 
+- To extend jExtract's element:
+```javascript
+//1. Register your method
+jExtract.addElementMethod('methodName', function(){
+    //this will be an Element object. To get a plain HTML element use this.get();
+});
+//2. Use your method
+var data = jExtract({
+    key: ['selector', 'methodName']
+});
+```
+- To extend jExtract's text object:
+```javascript
+//1. Register your method
+jExtract.addTextMethod('methodName', function(){
+    //this will be a Text object. To get a plain string use this.get();
+});
+//2. Use your method
+var data = jExtract({
+    key: ['selector', false, 'methodName']
+});
+```
