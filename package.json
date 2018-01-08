@@ -1,0 +1,29 @@
+{
+  "name": "jextract",
+  "version": "0.0.6",
+  "description": "A small function that allows developers to extract data from DOM to JavaScript objects.",
+  "main": "jextract.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kormanowsky/jextract.git"
+  },
+  "keywords": [
+    "jquery",
+    "jextract",
+    "javascript",
+    "js",
+    "dom",
+    "DOM",
+    "extract-data",
+    "jquery-plugin"
+  ],
+  "author": "Mikhail Kormanowsky <mkmkor-kr@yandex.ru> (https://github.com/kormanowsky)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/kormanowsky/jextract/issues"
+  },
+  "homepage": "https://github.com/kormanowsky/jextract#readme"
+}
