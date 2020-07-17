@@ -34,9 +34,9 @@ var structure = {
     content: "#page-content"
 };
 ```
-2. Just pass your structure as a parameter to jExtract function: 
+2. Just pass your structure as a parameter to jExtract function and call .fromDocument(): 
 ```javascript
-var data = jExtract(structure);
+var data = jExtract(structure).fromDocument();
 ```
 `data` will be:
 ```javascript 
@@ -47,21 +47,20 @@ var data = jExtract(structure);
 ```
 3. Now you can do anything you want with extracted data. 
 ## Extended usage
-### Options object
-jExtract accepts only 2 parameters: 
+### jExtract has the following ways of usage: 
 ```javascript 
-var data = jExtract({div: "div"}, {parent: document, json: false});
+jExtract(structure).using(options).from(root); // .using() is optional
+jExtract(structure).using(options).fromDocument(); // Does not work in Node.js
 ```
 #### Possible options 
 |Name|Description|Possible Values|Default Value|
 |-----|-----------|---------------|-------------|
-|parent|The element which will be used as root element.|An instance of HTMLElement, a HTML string or a CSS Selector|`window.document` in browser, no default value otherwise.|
 |json|Should the output be in JSON format?|`true/false`|`false`|
 
 ### JSON as input
 You can pass structure as JSON.
 ```javascript
-var data = jExtract("JSON here"); 
+var data = jExtract("JSON here").fromDocument(); 
 ```
 ### Substructures
 You can add substructures into your main structure. 
@@ -72,7 +71,7 @@ var struct = {
         subkey1: 'selector2',
         subkey2: 'selector3'
     }
-}, data = jExtract(struct);
+}, data = jExtract(struct).fromDocument();
 ```
 ### Options per key
 By default, jExtract returns the text of matched element(s). But you can change this behavior by passing more than argument in your structure keys (`key: [selector, dataGettingMethod, filterMethod, options]` instead of `key: selector`).
@@ -119,9 +118,7 @@ If you want to use your own method, pass it as third parameter. Your method will
 ```javascript
 var struct = {
     key1: ['div', 'text', function(value, index){
-        /* if dataGettingMethod returned a string, value will be a jExtractText object. You can get the text by calling the get() method: */
-        value = value.get();
-        /* otherwise value will be a number/boolean/etc., that was returned by dataGettingMethod. */
+        // Value will be a number/boolean/etc., that was returned by dataGettingMethod.
         // Index is an ordinal number of element (starting with 0)
         return value;
     }]
@@ -142,7 +139,7 @@ Since v0.0.7, jExtract's behavior with filter methods is the following:
 
 By default, jExtract searches for elements in `<html>` tag. You can pass a jQuery object as the second parameter to jExtract to change this:
 ```javascript
-var data = jExtract(structure, $("#someElement"));
+var data = jExtract(structure).from($("#someElement"));
 ```
 Also you can create a substructure that will be applied to each matched element. 
 Think of the following HTML: 
@@ -181,7 +178,7 @@ jExtract({
         id: ['.uid', [], 'toInt'],
         email: '.uemail'
       }]
-});
+}).fromDocument();
 ```
 You will get an array: 
 ```javascript
