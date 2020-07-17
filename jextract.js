@@ -1,8 +1,8 @@
 /**
     jExtract: a function for extracting data from DOM.
-    Version: 0.0.7
+    Version: 1.0.0
     Author: Mikhail Kormanowsky (@kormanowsky)
-    Date: 08.01.2018
+    Date: 17.07.2020
 */
 (function () {
     //Type checkers
@@ -158,15 +158,15 @@
                 return resultChildren;
             }
         },
-        methodArgs = function (input, defs) {
-            var method = defs[0],
-                args = defs[1];
-            if (!isUndefined(input)) {
-                if (isString(input) || isFunction(input)) method = input;
-                else if (isArray(input) && !isEmptyArray(input)) {
-                    method = input[0];
-                    if (input.length > 1) {
-                        args = input.slice(1);
+        parseDefaultArgs = function (args, defaults) {
+            var method = defaults[0],
+                args = defaults[1];
+            if (!isUndefined(args)) {
+                if (isString(args) || isFunction(args)) method = args;
+                else if (isArray(args) && !isEmptyArray(args)) {
+                    method = args[0];
+                    if (args.length > 1) {
+                        args = args.slice(1);
                     }
                 }
             }
@@ -234,10 +234,10 @@
                         if (isObject(e[1])) {
                             substruct = e[1];
                         } else {
-                            data = methodArgs(e[1], data);
+                            data = parseDefaultArgs(e[1], data);
                         }
 
-                        filter = methodArgs(e[2], filter);
+                        filter = parseDefaultArgs(e[2], filter);
 
                         if (!isUndefined(e[3])) {
                             asArray = !!e[3];
