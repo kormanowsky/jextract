@@ -3,16 +3,29 @@
 It makes possible extracting data from DOM. 
 May be useful when you are working with data from websites that don't have any data APIs. In that case you can use this function to read data directly from DOM (or HTML string).
 ### Live Demo: https://jsfiddle.net/475d24ts/
+### Warning! Internet Explorer is NOT supported since v1.0.0. If you need that browser to be supported, please use v0.0.7 (no longer maintained).
+## Installation 
+### Browser 
+Just download jextract.min.js and include it in your page. 
+### Node.js
+```bash 
+npm install jextract 
+```
 ## Basic usage
 0. Create a HTML document and include jExtract
 ```html
 <h1 id="page-title">Hello, world!</h1>
 <p id="page-content">Lorem ipsum dolor sit amet.</p>
 <!-- Your HTML continues here -->
-<script src="/path/to/jextract.js"></script>
+<script src="/path/to/jextract.min.js"></script>
 <script>
     //Your JavaScript goes here
 </script>
+```
+or 
+```javascript 
+// Import jExtract 
+const jExtract = require("jextract")
 ```
 1. Create a data structure containing CSS selectors of elements from which you need to extract data: 
 ```javascript
@@ -34,13 +47,21 @@ var data = jExtract(structure);
 ```
 3. Now you can do anything you want with extracted data. 
 ## Extended usage
-### JSON (since v0.0.6)
-You can pass structure as JSON and request a JSON-stringified answer.
+### Options object
+jExtract accepts only 2 parameters: 
+```javascript 
+var data = jExtract({div: "div"}, {parent: document, json: false});
+```
+#### Possible options 
+|Name|Description|Possible Values|Default Value|
+|-----|-----------|---------------|-------------|
+|parent|The element which will be used as root element.|An instance of HTMLElement, a HTML string or a CSS Selector|`window.document` in browser, no default value otherwise.|
+|json|Should the output be in JSON format?|`true/false`|`false`|
+
+### JSON as input
+You can pass structure as JSON.
 ```javascript
 var data = jExtract("JSON here"); 
-```
-```javascript
-var data = jExtract({ div: 'div'}, false, true); // will return JSON string with results
 ```
 ### Substructures
 You can add substructures into your main structure. 
@@ -53,8 +74,8 @@ var struct = {
     }
 }, data = jExtract(struct);
 ```
-### Options
-By default, jExtract returns the text of matched element(s). But you can change this behavior by passing more than argument in your structure keys (`key: [selector, dataGettingMethod, filterMethod, asArray]` instead of `key: selector`).
+### Options per key
+By default, jExtract returns the text of matched element(s). But you can change this behavior by passing more than argument in your structure keys (`key: [selector, dataGettingMethod, filterMethod, options]` instead of `key: selector`).
 #### Data getting method
 It's a function that returns data that is extracted from element. 
 Default: `text()`.
@@ -110,16 +131,13 @@ var struct = {
 Since v0.0.7, jExtract's behavior with filter methods is the following: 
 1. It looks for method in its own jExtractText object.
 2. If nothing was found, it looks for method in a String object created from its own object.
-3. If nothing was found again, it calls `console.error()` and stops extracting data from this structure key.
+3. If nothing was found again, it throws an error and stops extracting data from this structure key.
 
-#### What to do with a single value?
-jExtract generates an array of values during its loop. If there is less than two elements in the resulting array, the result will contain only first element of this array.
-If you don't want to lose an array in the result, set the fourth parameter to true (default is false): 
-```javascript
-...
-key: [selector, dataGettingMethod, filterMethod, true]
-...
-```
+#### Possible options per key
+|Name|Description|Possible Values|Default Value|
+|-----|-----------|---------------|-------------|
+|keepArray|What to do with a single value? jExtract generates an array of values during its loop. If there is less than two elements in the resulting array, the result will contain only first element of this array. If you don't want to lose an array in the result, set this to `true`|`true/false`|`false`|
+
 ### Parent elements
 
 By default, jExtract searches for elements in `<html>` tag. You can pass a jQuery object as the second parameter to jExtract to change this:
@@ -190,7 +208,7 @@ You can extend jExtract's Element and Text objects.
 - To extend jExtract's element:
 ```javascript
 //1. Register your method
-jExtract.addElementMethod('methodName', function(){
+jExtract.extendElement('methodName', function(){
     //this will be an Element object. To get a plain HTML element use this.get();
 });
 //2. Use your method
@@ -201,7 +219,7 @@ var data = jExtract({
 - To extend jExtract's text object:
 ```javascript
 //1. Register your method
-jExtract.addTextMethod('methodName', function(){
+jExtract.extendText('methodName', function(){
     //this will be a Text object. To get a plain string use this.get();
 });
 //2. Use your method
