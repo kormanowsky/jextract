@@ -260,25 +260,19 @@
             return new Element(elem);
         }
     }
-    //jExtract itself
-    function jExtract(struct, options) {
+
+    // Main extract function
+    function extract({ struct, root, options }) {
         //Object for result
-        let result = {},
-            parent;
+        let result = {};
         //Default values
         struct = struct || {};
         options = Is.object(options) ? options : {};
         options.json = options.json || false;
 
-        if (!options.parent) {
-            if (BROWSER) {
-                options.parent = new Element(document);
-            } else {
-                throw new JExtractError("Parent element is not specified.");
-            }
+        if (!root) {
+            throw new JExtractError("Root element is not specified.");
         }
-
-        parent = options.parent;
 
         if (!Is.object(struct)) {
             if (Is.JSON(struct)) {
@@ -287,20 +281,20 @@
                 throw new JExtractError("Incorrect JSON");
             }
         }
-        if (Is.string(parent)) {
-            parent = stringToElement(parent);
+        if (Is.string(root)) {
+            root = stringToElement(root);
         }
-        if (Is.jQuery(parent)) {
-            parent = parent[0];
+        if (Is.jQuery(root)) {
+            root = root[0];
         }
-        if (!Is.jExtractElement(parent)) {
-            parent = new Element(parent);
+        if (!Is.jExtractElement(root)) {
+            root = new Element(root);
         }
         //Start our loop
         each(struct, function (e, i) {
             //Recursion :)
             if (Is.object(e)) {
-                result[i] = jExtract(e, parent);
+                result[i] = jExtract(e, root);
                 return;
             }
             //Get settings from the structure
@@ -312,9 +306,9 @@
                 substruct;
 
             if (Is.string(e)) {
-                elements = find(parent, e);
+                elements = find(root, e);
             } else {
-                elements = find(parent, e[0]);
+                elements = find(root, e[0]);
                 //User-defined functions support added
                 if (Is.object(e[1])) {
                     substruct = e[1];
@@ -400,6 +394,29 @@
         });
         //Return structure filled in with data
         return options.json ? JSON.stringify(result) : result;
+    }
+    //jExtract itself
+    function jExtract(struct) {
+        let chainData = { struct, options: {}, root: {} },
+            chain = {
+                using(options) {
+                    chainData.options = options;
+                    return chain;
+                },
+                from(root) {
+                    chainData.root = root;
+                    return extract(chainData);
+                },
+                fromDocument() {
+                    if (!BROWSER) {
+                        throw new JExtractError(
+                            "Cannot extract from document when not in browser."
+                        );
+                    }
+                    return this.from(document);
+                },
+            };
+        return chain;
     }
     jExtract.extendText = function (extension) {
         each(extension, (value, key) => {
