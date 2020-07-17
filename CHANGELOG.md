@@ -1,7 +1,7 @@
 ### Changes since v1.1.0
 - New style of jExtract function, now there are three methods. They may be chained and only one of .from() and .fromDocument() must be called at once. 
 |Method|Description|
-|--|--|--|
+|--|--|
 |.fromDocument (Required)|Extracts the data from the whole document. Works only in browser.|
 |.from(root) (Required)|Extracts the data from given `root` (`root` may be an element, a jQuery instance, a CSS selector, a HTML string)|
 |.using(options) (Optional)|Allows passing `options` object to jExtract|
