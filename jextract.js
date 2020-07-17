@@ -386,7 +386,7 @@
                 }
             });
             //Make a value (e.g string or number) from array if there's less than 2 elements and no need for an array
-            if (!options.keepAarray && subresult.length < 2) {
+            if (!options.keepArray && subresult.length < 2) {
                 subresult = subresult[0];
             }
             //Add subresult to result object
