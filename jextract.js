@@ -158,15 +158,15 @@
                 return resultChildren;
             }
         },
-        parseDefaultArgs = function (args, defaults) {
+        parseDefaultArgs = function (custom, defaults) {
             var method = defaults[0],
                 args = defaults[1];
-            if (!isUndefined(args)) {
-                if (isString(args) || isFunction(args)) method = args;
-                else if (isArray(args) && !isEmptyArray(args)) {
-                    method = args[0];
-                    if (args.length > 1) {
-                        args = args.slice(1);
+            if (!isUndefined(custom)) {
+                if (isString(custom) || isFunction(custom)) method = custom;
+                else if (isArray(custom) && !isEmptyArray(custom)) {
+                    method = custom[0];
+                    if (custom.length > 1) {
+                        args = custom.slice(1);
                     }
                 }
             }
@@ -227,10 +227,7 @@
                         subresult = [],
                         elements,
                         substruct;
-                    if (isObject(e[3])) {
-                        options = e[3];
-                    }
-                    options.keepArray = options.keepArray || false;
+
                     if (isString(e)) {
                         elements = find(parent, e);
                     } else {
@@ -243,6 +240,12 @@
                         }
 
                         filter = parseDefaultArgs(e[2], filter);
+
+                        if (isObject(e[3])) {
+                            options = e[3];
+                        }
+
+                        options.keepArray = options.keepArray || false;
                     }
                     //Find elements that match selector and extract data from them
                     each(elements, function (item, index) {
