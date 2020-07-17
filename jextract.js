@@ -210,114 +210,116 @@
                 }
             }
             if (isString(parent)) {
-                return jExtract(struct, stringToParent(parent));
-            } else {
-                if (isjQuery(parent)) parent = parent[0];
-                if (!isjExtractElement(parent)) parent = new Element(parent);
-                //Start our loop
-                each(struct, function (e, i) {
-                    //Recursion :)
-                    if (isObject(e)) {
-                        result[i] = jExtract(e, parent);
-                        return;
-                    }
-                    //Get settings from the structure
-                    var data = ["text", []],
-                        filter = ["get", []],
-                        options = {},
-                        subresult = [],
-                        elements,
-                        substruct;
+                parent = stringToParent(parent);
+            }
+            if (isjQuery(parent)) {
+                parent = parent[0];
+            }
+            if (!isjExtractElement(parent)) {
+                parent = new Element(parent);
+            }
+            //Start our loop
+            each(struct, function (e, i) {
+                //Recursion :)
+                if (isObject(e)) {
+                    result[i] = jExtract(e, parent);
+                    return;
+                }
+                //Get settings from the structure
+                var data = ["text", []],
+                    filter = ["get", []],
+                    options = {},
+                    subresult = [],
+                    elements,
+                    substruct;
 
-                    if (isString(e)) {
-                        elements = find(parent, e);
+                if (isString(e)) {
+                    elements = find(parent, e);
+                } else {
+                    elements = find(parent, e[0]);
+                    //User-defined functions support added
+                    if (isObject(e[1])) {
+                        substruct = e[1];
                     } else {
-                        elements = find(parent, e[0]);
-                        //User-defined functions support added
-                        if (isObject(e[1])) {
-                            substruct = e[1];
-                        } else {
-                            data = parseDefaultArgs(e[1], data);
-                        }
-
-                        filter = parseDefaultArgs(e[2], filter);
-
-                        if (isObject(e[3])) {
-                            options = e[3];
-                        }
-
-                        options.keepArray = options.keepArray || false;
+                        data = parseDefaultArgs(e[1], data);
                     }
-                    //Find elements that match selector and extract data from them
-                    each(elements, function (item, index) {
-                        if (isUndefined(substruct)) {
-                            var method = function () {},
-                                args = [],
-                                context = null;
-                            if (isFunction(data[0])) {
-                                method = data[0];
-                                args = [item, index, elements].concat(data[1]);
-                            } else if (isString(data[0])) {
-                                args = data[1];
-                                if (data[0] in item) {
-                                    method = item[data[0]];
-                                    context = item;
-                                } else if ($ && data[0] in $(item.get())) {
-                                    method = $(item.get())[data[0]];
-                                    context = $(item.get());
+
+                    filter = parseDefaultArgs(e[2], filter);
+
+                    if (isObject(e[3])) {
+                        options = e[3];
+                    }
+
+                    options.keepArray = options.keepArray || false;
+                }
+                //Find elements that match selector and extract data from them
+                each(elements, function (item, index) {
+                    if (isUndefined(substruct)) {
+                        var method = function () {},
+                            args = [],
+                            context = null;
+                        if (isFunction(data[0])) {
+                            method = data[0];
+                            args = [item, index, elements].concat(data[1]);
+                        } else if (isString(data[0])) {
+                            args = data[1];
+                            if (data[0] in item) {
+                                method = item[data[0]];
+                                context = item;
+                            } else if ($ && data[0] in $(item.get())) {
+                                method = $(item.get())[data[0]];
+                                context = $(item.get());
+                            } else {
+                                throw new JExtractError(
+                                    `Undefined Element method: ${data[0]}`
+                                );
+                            }
+                        }
+                        var extractedData = method.apply(context, args),
+                            itemResult;
+                        if (isString(extractedData) && filter[0]) {
+                            method = function () {};
+                            args = [];
+                            context = null;
+                            extractedData = new Text(extractedData);
+                            if (isFunction(filter[0])) {
+                                method = filter[0];
+                                args = [extractedData.get(), index].concat(
+                                    filter[1]
+                                );
+                            } else if (isString(filter[0])) {
+                                args = filter[1];
+                                if (filter[0] in extractedData) {
+                                    method = extractedData[filter[0]];
+                                    context = extractedData;
+                                } else if (
+                                    filter[0] in new String(extractedData.get())
+                                ) {
+                                    method = extractedData.get()[filter[0]];
+                                    context = extractedData.get();
                                 } else {
                                     throw new JExtractError(
-                                        `Undefined Element method: ${data[0]}`
+                                        `Undefined Element method: ${filter[0]}`
                                     );
                                 }
                             }
-                            var extractedData = method.apply(context, args),
-                                itemResult;
-                            if (isString(extractedData) && filter[0]) {
-                                method = function () {};
-                                args = [];
-                                context = null;
-                                extractedData = new Text(extractedData);
-                                if (isFunction(filter[0])) {
-                                    method = filter[0];
-                                    args = [extractedData.get(), index].concat(
-                                        filter[1]
-                                    );
-                                } else if (isString(filter[0])) {
-                                    args = filter[1];
-                                    if (filter[0] in extractedData) {
-                                        method = extractedData[filter[0]];
-                                        context = extractedData;
-                                    } else if (
-                                        filter[0] in
-                                        new String(extractedData.get())
-                                    ) {
-                                        method = extractedData.get()[filter[0]];
-                                        context = extractedData.get();
-                                    } else {
-                                        throw new JExtractError(
-                                            `Undefined Element method: ${filter[0]}`
-                                        );
-                                    }
-                                }
-                                itemResult = method.apply(context, args);
-                            } else {
-                                itemResult = extractedData;
-                            }
-                            subresult.push(itemResult);
+                            itemResult = method.apply(context, args);
                         } else {
-                            //Or just make a recursion if needed
-                            subresult.push(jExtract(substruct, item));
+                            itemResult = extractedData;
                         }
-                    });
-                    //Make a value (e.g string or number) from array if there's less than 2 elements and no need for an array
-                    if (!options.keepArray && subresult.length < 2) {
-                        subresult = subresult[0];
+                        subresult.push(itemResult);
+                    } else {
+                        //Or just make a recursion if needed
+                        subresult.push(jExtract(substruct, item));
                     }
-                    //Add subresult to result object
-                    result[i] = subresult;
                 });
-            }
+                //Make a value (e.g string or number) from array if there's less than 2 elements and no need for an array
+                if (!options.keepArray && subresult.length < 2) {
+                    subresult = subresult[0];
+                }
+                //Add subresult to result object
+                result[i] = subresult;
+            });
             //Return structure filled in with data
             return options.json ? JSON.stringify(result) : result;
         };
