@@ -1,10 +1,10 @@
 {
   "name": "jextract",
   "version": "1.0.0",
-  "description": "A small function that allows developers to extract data from DOM to JavaScript objects.",
+  "description": "A function that allows developers to extract data from DOM to JavaScript objects.",
   "main": "jextract.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,11 @@
   "bugs": {
     "url": "https://github.com/kormanowsky/jextract/issues"
   },
-  "homepage": "https://github.com/kormanowsky/jextract#readme"
+  "homepage": "https://github.com/kormanowsky/jextract#readme",
+  "dependencies": {
+    "css-selector-parser": "^1.4.1",
+    "node-html-parser": "^1.2.20",
+    "rollup": "^2.21.0",
+    "rollup-plugin-terser": "^6.1.0"
+  }
 }
