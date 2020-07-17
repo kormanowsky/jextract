@@ -49,7 +49,9 @@ var data = jExtract(structure).fromDocument();
 ## Extended usage
 ### jExtract has the following ways of usage: 
 ```javascript 
+// 1. Extract data from specified root (root may be an element, a CSS selector or a HTML string)
 jExtract(structure).using(options).from(root); // .using() is optional
+// 2. Extract data from the whole document (only in browser)
 jExtract(structure).using(options).fromDocument(); // Does not work in Node.js
 ```
 #### Possible options 
@@ -137,7 +139,7 @@ Since v0.0.7, jExtract's behavior with filter methods is the following:
 
 ### Parent elements
 
-By default, jExtract searches for elements in `<html>` tag. You can pass a jQuery object as the second parameter to jExtract to change this:
+By default, jExtract searches for elements in `<html>` tag. You can call .from() instead of .fromDocument() to change this:
 ```javascript
 var data = jExtract(structure).from($("#someElement"));
 ```
