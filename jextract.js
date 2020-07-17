@@ -230,7 +230,7 @@
                         elements = find(parent, e);
                     } else {
                         elements = find(parent, e[0]);
-                        //User-deined functions support added
+                        //User-defined functions support added
                         if (isObject(e[1])) {
                             substruct = e[1];
                         } else {
@@ -316,11 +316,11 @@
             //Return structure filled in with data
             return asJSON ? JSON.stringify(result) : result;
         };
-    jExtract.extendText = function (name, callback) {
-        Text.prototype[name] = callback;
+    jExtract.extendText = function (extension) {
+        Object.assign(Text.prototype, extension);
     };
-    jExtract.extendElement = function (name, callback) {
-        Element.prototype[name] = callback;
+    jExtract.extendElement = function (extension) {
+        Object.assign(Element.prototype, extension);
     };
     window.$E = window.jExtract = jExtract;
     if ($) {
