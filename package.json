@@ -1,6 +1,6 @@
 {
   "name": "jextract",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "description": "A small function that allows developers to extract data from DOM to JavaScript objects.",
   "main": "jextract.js",
   "scripts": {
