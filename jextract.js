@@ -193,13 +193,14 @@
             }
         },
         //jExtract itself
-        jExtract = function (struct, parent, asJSON) {
+        jExtract = function (struct, parent, options) {
             //Object for result
             var result = {};
             //Default values
             struct = struct || {};
             parent = parent || new Element(document);
-            asJSON = asJSON || false;
+            options = isObject(options) ? options : {};
+            options.json = options.json || false;
             if (!isObject(struct)) {
                 if (isJSON(struct)) {
                     struct = JSON.parse(struct);
@@ -314,7 +315,7 @@
                 });
             }
             //Return structure filled in with data
-            return asJSON ? JSON.stringify(result) : result;
+            return options.json ? JSON.stringify(result) : result;
         };
     jExtract.extendText = function (extension) {
         Object.assign(Text.prototype, extension);
