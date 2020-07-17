@@ -377,7 +377,7 @@
                                 context = extractedData.get();
                             } else {
                                 throw new JExtractError(
-                                    `Undefined Element method: ${filter[0]}`
+                                    `Undefined Text method: ${filter[0]}`
                                 );
                             }
                         }
