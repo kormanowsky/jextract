@@ -193,14 +193,15 @@
             }
         },
         //jExtract itself
-        jExtract = function (struct, parent, options) {
+        jExtract = function (struct, options) {
             //Object for result
-            var result = {};
+            let result = {};
             //Default values
             struct = struct || {};
-            parent = parent || new Element(document);
             options = isObject(options) ? options : {};
             options.json = options.json || false;
+            let parent = options.parent || new Element(document);
+
             if (!isObject(struct)) {
                 if (isJSON(struct)) {
                     struct = JSON.parse(struct);
