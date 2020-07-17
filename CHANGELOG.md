@@ -1,4 +1,4 @@
-### Changes since v1.0.0
+# Changes since v1.0.0
 - Internet Explorer is NOT longer supported. To use jExtract with that browser, downgrade to v0.0.7 (no longer maintained).
 - jExtract now supports Node.js
 - jExtract accepts only 2 parameters: struct and options. Options are described in README. 
