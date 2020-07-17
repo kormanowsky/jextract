@@ -141,6 +141,9 @@
     //Object creator and finder
     let $ = isFunction(window.jQuery) ? window.jQuery : false,
         find = function (parent, selector) {
+            if (isNull(parent.get())) {
+                throw new JExtractError(`Incorrect parent element or selector`);
+            }
             if (selector == ".") {
                 return [parent];
             } else {
