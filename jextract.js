@@ -129,6 +129,15 @@
             return this.element;
         }
     }
+
+    // The JExtractError class
+    class JExtractError extends Error {
+        constructor(message) {
+            super();
+            this.name = "JExtractError";
+            this.message = message;
+        }
+    }
     //Object creator and finder
     let $ = isFunction(window.jQuery) ? window.jQuery : false,
         find = function (parent, selector) {
@@ -136,10 +145,8 @@
                 return [parent];
             } else {
                 if (!isCSSSelector(selector)) {
-                    throw (
-                        'jExtract error: couldn`t find elements that match selector "' +
-                        selector +
-                        '".'
+                    throw new JExtractError(
+                        `Could not find elements that match given selector: ${selector}`
                     );
                 }
                 var children = parent.get().querySelectorAll(selector),
@@ -197,7 +204,7 @@
                 if (isJSON(struct)) {
                     struct = JSON.parse(struct);
                 } else {
-                    throw "jExtract error: incorrect JSON";
+                    throw new JExtractError("Incorrect JSON");
                 }
             }
             if (isString(parent)) {
@@ -254,10 +261,8 @@
                                     method = $(item.get())[data[0]];
                                     context = $(item.get());
                                 } else {
-                                    throw (
-                                        'jExtract error: undefined element method "' +
-                                        data[0] +
-                                        '".'
+                                    throw new JExtractError(
+                                        `Undefined Element method: ${data[0]}`
                                     );
                                 }
                             }
@@ -285,10 +290,8 @@
                                         method = extractedData.get()[filter[0]];
                                         context = extractedData.get();
                                     } else {
-                                        throw (
-                                            'jExtract error: undefined text method "' +
-                                            filter[0] +
-                                            '".'
+                                        throw new JExtractError(
+                                            `Undefined Element method: ${filter[0]}`
                                         );
                                     }
                                 }
@@ -313,10 +316,10 @@
             //Return structure filled in with data
             return asJSON ? JSON.stringify(result) : result;
         };
-    jExtract.addTextMethod = function (name, callback) {
+    jExtract.extendText = function (name, callback) {
         Text.prototype[name] = callback;
     };
-    jExtract.addElementMethod = function (name, callback) {
+    jExtract.extendElement = function (name, callback) {
         Element.prototype[name] = callback;
     };
     window.$E = window.jExtract = jExtract;
