@@ -3,6 +3,7 @@
 It makes possible extracting data from DOM. 
 May be useful when you are working with data from websites that don't have any data APIs. In that case you can use this function to read data directly from DOM (or HTML string).
 ### Live Demo: https://jsfiddle.net/475d24ts/
+### Live Node.js Demo: https://runkit.com/embed/8mv2dyvinvyz
 ### Warning! Internet Explorer is NOT supported since v1.0.0. If you need that browser to be supported, please use v0.0.7 (no longer maintained).
 ## Installation 
 ### Browser 
