@@ -276,7 +276,7 @@
                                 extractedData = new Text(extractedData);
                                 if (isFunction(filter[0])) {
                                     method = filter[0];
-                                    args = [extractedData, index].concat(
+                                    args = [extractedData.get(), index].concat(
                                         filter[1]
                                     );
                                 } else if (isString(filter[0])) {
