@@ -208,8 +208,12 @@ You can extend jExtract's Element and Text objects.
 - To extend jExtract's element:
 ```javascript
 //1. Register your method
-jExtract.extendElement('methodName', function(){
-    //this will be an Element object. To get a plain HTML element use this.get();
+jExtract.extendElement({ 
+    methodName: function(elementInstance){
+        // do something with Element instance 
+    }, 
+    otherMethodName: ...
+    // etc 
 });
 //2. Use your method
 var data = jExtract({
@@ -219,8 +223,12 @@ var data = jExtract({
 - To extend jExtract's text object:
 ```javascript
 //1. Register your method
-jExtract.extendText('methodName', function(){
-    //this will be a Text object. To get a plain string use this.get();
+jExtract.extendText({ 
+    methodName: function(textInstance){
+        // do something with Text instance 
+    }, 
+    otherMethodName: ...
+    // etc 
 });
 //2. Use your method
 var data = jExtract({
