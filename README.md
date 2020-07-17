@@ -54,6 +54,12 @@ jExtract(structure).using(options).from(root); // .using() is optional
 // 2. Extract data from the whole document (only in browser)
 jExtract(structure).using(options).fromDocument(); // Does not work in Node.js
 ```
+### Methods
+|Method|Description|
+|--|--|--|
+|.fromDocument (Required)|Extracts the data from the whole document. Works only in browser.|
+|.from(root) (Required)|Extracts the data from given `root` (`root` may be an element, a jQuery instance, a CSS selector, a HTML string)|
+|.using(options) (Optional)|Allows passing `options` object to jExtract|
 #### Possible options 
 |Name|Description|Possible Values|Default Value|
 |-----|-----------|---------------|-------------|
