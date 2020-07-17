@@ -223,10 +223,14 @@
                     //Get settings from the structure
                     var data = ["text", []],
                         filter = ["get", []],
-                        asArray = false,
+                        options = {},
                         subresult = [],
                         elements,
                         substruct;
+                    if (isObject(e[3])) {
+                        options = e[3];
+                    }
+                    options.keepArray = options.keepArray || false;
                     if (isString(e)) {
                         elements = find(parent, e);
                     } else {
@@ -239,10 +243,6 @@
                         }
 
                         filter = parseDefaultArgs(e[2], filter);
-
-                        if (!isUndefined(e[3])) {
-                            asArray = !!e[3];
-                        }
                     }
                     //Find elements that match selector and extract data from them
                     each(elements, function (item, index) {
@@ -307,7 +307,7 @@
                         }
                     });
                     //Make a value (e.g string or number) from array if there's less than 2 elements and no need for an array
-                    if (!asArray && subresult.length < 2) {
+                    if (!options.keepArray && subresult.length < 2) {
                         subresult = subresult[0];
                     }
                     //Add subresult to result object
